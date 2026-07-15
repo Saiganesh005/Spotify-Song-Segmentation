@@ -16,3 +16,5 @@ print("Dataset Shape:", df.shape)
 print(df.columns)
 # Display dataset information
 df.info()
+df.describe()
+
