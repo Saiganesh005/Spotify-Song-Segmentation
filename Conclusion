@@ -1,0 +1,3 @@
+This project demonstrated how unsupervised machine learning can be applied to organize songs based on their audio features. After preprocessing and exploratory analysis, relevant numerical features were selected and standardized before applying the K-Means algorithm. The resulting clusters provided meaningful groupings of songs and enabled the implementation of a simple recommendation system.
+
+The project also highlighted the importance of feature scaling, visualization, and evaluation metrics in building effective clustering models. Overall, this beginner-level project provides a practical understanding of clustering techniques and their application in recommendation systems.
