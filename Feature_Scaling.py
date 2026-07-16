@@ -30,6 +30,13 @@ plt.xlabel("Number of Clusters")
 plt.ylabel("WCSS")
 plt.title("Elbow Method")
 
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/11_elbow_method.png",
+    dpi=300
+)
+
 plt.show()
 # ============================================================
 #  Silhouette Score
