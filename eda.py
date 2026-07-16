@@ -1,3 +1,4 @@
+#Playlist Genre Distribution
 plt.figure(figsize=(10,6))
 
 sns.countplot(
@@ -16,6 +17,15 @@ genre_counts = df['playlist_genre'].value_counts()
 
 print("Most Frequent Genre :", genre_counts.idxmax(), "->", genre_counts.max())
 print("Least Frequent Genre :", genre_counts.idxmin(), "->", genre_counts.min())
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/01_playlist_genre_distribution.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
+plt.show()
 #Playlist Subgenre Distribution
 
 plt.figure(figsize=(14,7))
@@ -30,7 +40,7 @@ plt.xticks(rotation=45)
 plt.xlabel("Playlist Subgenre")
 plt.ylabel("Number of Songs")
 plt.title("Distribution of Playlist Subgenres")
-plt.show()
+
 
 subgenre_counts = df['playlist_subgenre'].value_counts()
 
@@ -38,6 +48,16 @@ print("Most Frequent Subgenre :", subgenre_counts.idxmax(), "->", subgenre_count
 print("Least Frequent Subgenre :", subgenre_counts.idxmin(), "->", subgenre_counts.min())
 #Track Popularity Distribution
 
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/02_playlist_subgenre_distribution.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
+plt.show()
+#Track Popularity
 plt.figure(figsize=(8,5))
 
 sns.histplot(
@@ -49,6 +69,12 @@ sns.histplot(
 plt.xlabel("Track Popularity")
 plt.ylabel("Frequency")
 plt.title("Distribution of Track Popularity")
+
+
+plt.savefig(
+    "outputs/images/03_track_popularity.png",
+    dpi=300
+)
 
 plt.show()
 #Danceability Distribution
@@ -62,6 +88,14 @@ sns.histplot(
 )
 
 plt.title("Danceability Distribution")
+
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/04_danceability.png",
+    dpi=300
+)
+
 plt.show()
 #Energy Distribution
 
@@ -74,6 +108,14 @@ sns.histplot(
 )
 
 plt.title("Energy Distribution")
+
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/05_energy.png",
+    dpi=300
+)
+
 plt.show()
 #Tempo Distribution
 
@@ -86,6 +128,13 @@ sns.histplot(
 )
 
 plt.title("Tempo Distribution")
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/06_tempo.png",
+    dpi=300
+)
+
 plt.show()
 #Loudness Distribution
 plt.figure(figsize=(8,5))
@@ -97,8 +146,15 @@ sns.histplot(
 )
 
 plt.title("Loudness Distribution")
-plt.show()
 
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/07_loudness.png",
+    dpi=300
+)
+
+plt.show()
 #Box Plot of Audio Features
 
 features = [
@@ -119,6 +175,14 @@ plt.xticks(rotation=45)
 
 plt.title("Box Plot of Audio Features")
 
+
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/08_boxplot.png",
+    dpi=300
+)
+
 plt.show()
 #Pair Plot
 
@@ -130,11 +194,12 @@ pair_features = [
 ]
 
 sns.pairplot(df[pair_features])
+pair.fig.suptitle(
+    "Pair Plot of Audio Features",
+    y=1.02
+)
 
-plt.show()
-"""The dataset contains songs from multiple playlist genres and subgenres.
-Some genres contain significantly more songs than others.
-Song popularity varies widely across the dataset.
-Most audio features follow distinct distributions.
-Certain audio features contain outliers.
-Relationships among numerical features indicate that clustering can effectively group similar songs."""
+pair.savefig(
+    "outputs/images/09_pairplot.png",
+    dpi=300
+)
