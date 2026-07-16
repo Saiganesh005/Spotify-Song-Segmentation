@@ -16,3 +16,11 @@ plt.show()
 
 corr_mtx["track_popularity"].sort_values(ascending=False)
 
+plt.tight_layout()
+
+plt.savefig(
+    "outputs/images/10_correlation_heatmap.png",
+    dpi=300
+)
+
+plt.show()
