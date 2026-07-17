@@ -5,19 +5,21 @@ Visualization Module (Part 1)
 =========================================================
 
 Author : Robbi Sai Ganesh Devi Prasad
-Project : Spotify Songs Genre Segmentation using
-          Machine Learning & Deep Learning
+Project : Spotify Genre Segmentation
 =========================================================
 """
 
 import os
-import warnings
-
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
+import numpy as np
 
-warnings.filterwarnings("ignore")
+# --------------------------------------------------------
+# Create Output Directory
+# --------------------------------------------------------
+
+os.makedirs("outputs/images", exist_ok=True)
 
 # --------------------------------------------------------
 # Plot Style
@@ -26,12 +28,10 @@ warnings.filterwarnings("ignore")
 plt.style.use("ggplot")
 sns.set_theme(style="whitegrid")
 
-# --------------------------------------------------------
-# Create Output Folder
-# --------------------------------------------------------
 
-os.makedirs("outputs/images", exist_ok=True)
-
+# ========================================================
+# Visualization Class
+# ========================================================
 
 class DataVisualization:
 
@@ -39,9 +39,9 @@ class DataVisualization:
 
         self.df = dataframe
 
-    # =====================================================
-    # Save Figure
-    # =====================================================
+    # ====================================================
+    # Save Plot
+    # ====================================================
 
     def save_plot(self, filename):
 
@@ -53,333 +53,651 @@ class DataVisualization:
             bbox_inches="tight"
         )
 
-        print(f"{filename} Saved Successfully")
+        print(f"Saved : outputs/images/{filename}")
 
         plt.show()
 
-    # =====================================================
-    # Dataset Overview
-    # =====================================================
+    # ====================================================
+    # Dataset Information
+    # ====================================================
 
-    def dataset_overview(self):
+    def dataset_information(self):
 
         print("=" * 60)
-        print("DATASET OVERVIEW")
+        print("DATASET INFORMATION")
         print("=" * 60)
 
-        print("\nShape")
+        print("Rows :", self.df.shape[0])
+        print("Columns :", self.df.shape[1])
 
-        print(self.df.shape)
-
-        print("\nColumns")
+        print("\nColumn Names\n")
 
         print(self.df.columns.tolist())
 
-        print("\nData Types")
+        print("\nData Types\n")
 
         print(self.df.dtypes)
 
-        print("\nMissing Values")
+    # ====================================================
+    # Missing Values
+    # ====================================================
 
-        print(self.df.isnull().sum())
+    def missing_values(self):
 
-        print("\nDuplicate Rows")
+        missing = self.df.isnull().sum()
 
-        print(self.df.duplicated().sum())
+        plt.figure(figsize=(10,5))
 
-    # =====================================================
+        missing.plot(
+            kind="bar"
+        )
+
+        plt.title("Missing Values")
+
+        plt.ylabel("Count")
+
+        self.save_plot(
+            "01_missing_values.png"
+        )
+
+        return missing
+
+    # ====================================================
     # Playlist Genre Distribution
-    # =====================================================
+    # ====================================================
 
     def playlist_genre_distribution(self):
 
-        plt.figure(figsize=(10,6))
+        if "playlist_genre" not in self.df.columns:
+            return
 
-        order = self.df["playlist_genre"].value_counts().index
+        plt.figure(figsize=(10,6))
 
         sns.countplot(
             data=self.df,
             x="playlist_genre",
-            order=order,
-            palette="viridis"
+            order=self.df["playlist_genre"]
+            .value_counts()
+            .index
         )
+
+        plt.xticks(rotation=45)
 
         plt.title("Playlist Genre Distribution")
 
-        plt.xlabel("Playlist Genre")
+        self.save_plot(
+            "02_playlist_genre_distribution.png"
+        )
 
-        plt.ylabel("Number of Songs")
-
-        plt.xticks(rotation=30)
-
-        self.save_plot("02_playlist_genre.png")
-
-    # =====================================================
+    # ====================================================
     # Playlist Subgenre Distribution
-    # =====================================================
+    # ====================================================
 
     def playlist_subgenre_distribution(self):
 
-        plt.figure(figsize=(14,6))
+        if "playlist_subgenre" not in self.df.columns:
+            return
 
-        order = self.df["playlist_subgenre"].value_counts().index
+        plt.figure(figsize=(14,6))
 
         sns.countplot(
             data=self.df,
             x="playlist_subgenre",
-            order=order,
-            palette="magma"
+            order=self.df["playlist_subgenre"]
+            .value_counts()
+            .index
         )
-
-        plt.title("Playlist Subgenre Distribution")
-
-        plt.xlabel("Playlist Subgenre")
-
-        plt.ylabel("Number of Songs")
 
         plt.xticks(rotation=90)
 
-        self.save_plot("03_playlist_subgenre.png")
+        plt.title("Playlist Subgenre Distribution")
 
-    # =====================================================
-    # Track Popularity
-    # =====================================================
-
-    def popularity_distribution(self):
-
-        plt.figure(figsize=(9,5))
-
-        sns.histplot(
-            self.df["track_popularity"],
-            bins=30,
-            kde=True,
-            color="royalblue"
+        self.save_plot(
+            "03_playlist_subgenre_distribution.png"
         )
 
-        plt.title("Track Popularity Distribution")
+    # ====================================================
+    # Track Popularity
+    # ====================================================
+
+    def track_popularity(self):
+
+        if "track_popularity" not in self.df.columns:
+            return
+
+        plt.figure(figsize=(8,5))
+
+        plt.hist(
+            self.df["track_popularity"],
+            bins=30
+        )
 
         plt.xlabel("Popularity")
 
         plt.ylabel("Frequency")
 
-        self.save_plot("04_track_popularity.png")
+        plt.title("Track Popularity Distribution")
 
-    # =====================================================
-    # Danceability
-    # =====================================================
-
-    def danceability_distribution(self):
-
-        plt.figure(figsize=(9,5))
-
-        sns.histplot(
-            self.df["danceability"],
-            bins=30,
-            kde=True,
-            color="green"
+        self.save_plot(
+            "04_track_popularity.png"
         )
 
-        plt.title("Danceability Distribution")
+    # ====================================================
+    # Danceability Histogram
+    # ====================================================
+
+    def danceability(self):
+
+        plt.figure(figsize=(8,5))
+
+        plt.hist(
+            self.df["danceability"],
+            bins=30
+        )
 
         plt.xlabel("Danceability")
 
         plt.ylabel("Frequency")
 
-        self.save_plot("05_danceability.png")
+        plt.title("Danceability Distribution")
 
-    # =====================================================
-    # Energy
-    # =====================================================
-
-    def energy_distribution(self):
-
-        plt.figure(figsize=(9,5))
-
-        sns.histplot(
-            self.df["energy"],
-            bins=30,
-            kde=True,
-            color="orange"
+        self.save_plot(
+            "05_danceability.png"
         )
 
-        plt.title("Energy Distribution")
+    # ====================================================
+    # Energy Histogram
+    # ====================================================
+
+    def energy(self):
+
+        plt.figure(figsize=(8,5))
+
+        plt.hist(
+            self.df["energy"],
+            bins=30
+        )
 
         plt.xlabel("Energy")
 
         plt.ylabel("Frequency")
 
-        self.save_plot("06_energy.png")
+        plt.title("Energy Distribution")
 
-    # =====================================================
-    # Tempo
-    # =====================================================
-
-    def tempo_distribution(self):
-
-        plt.figure(figsize=(9,5))
-
-        sns.histplot(
-            self.df["tempo"],
-            bins=30,
-            kde=True,
-            color="purple"
+        self.save_plot(
+            "06_energy.png"
         )
 
-        plt.title("Tempo Distribution")
+    # ====================================================
+    # Loudness Histogram
+    # ====================================================
 
-        plt.xlabel("Tempo")
+    def loudness(self):
 
-        plt.ylabel("Frequency")
+        plt.figure(figsize=(8,5))
 
-        self.save_plot("07_tempo.png")
-
-    # =====================================================
-    # Loudness
-    # =====================================================
-
-    def loudness_distribution(self):
-
-        plt.figure(figsize=(9,5))
-
-        sns.histplot(
+        plt.hist(
             self.df["loudness"],
-            bins=30,
-            kde=True,
-            color="red"
+            bins=30
         )
-
-        plt.title("Loudness Distribution")
 
         plt.xlabel("Loudness")
 
         plt.ylabel("Frequency")
 
-        self.save_plot("08_loudness.png")
+        plt.title("Loudness Distribution")
 
-    # =====================================================
-    # Numerical Boxplots
-    # =====================================================
-
-    def boxplot_visualization(self):
-
-        features = [
-            "danceability",
-            "energy",
-            "loudness",
-            "speechiness",
-            "acousticness",
-            "instrumentalness",
-            "liveness",
-            "valence",
-            "tempo"
-        ]
-
-        plt.figure(figsize=(14,8))
-
-        sns.boxplot(
-            data=self.df[features]
+        self.save_plot(
+            "07_loudness.png"
         )
 
-        plt.xticks(rotation=40)
+    # ====================================================
+    # Tempo Histogram
+    # ====================================================
 
-        plt.title("Box Plot of Numerical Features")
+    def tempo(self):
 
-        self.save_plot("09_boxplot.png")
+        plt.figure(figsize=(8,5))
 
-    # =====================================================
-    # Pair Plot
-    # =====================================================
-
-    def pair_plot(self):
-
-        features = [
-            "danceability",
-            "energy",
-            "valence",
-            "tempo",
-            "track_popularity"
-        ]
-
-        pair = sns.pairplot(
-            self.df[features],
-            corner=True,
-            diag_kind="hist"
+        plt.hist(
+            self.df["tempo"],
+            bins=30
         )
 
-        pair.fig.suptitle(
-            "Pair Plot of Important Features",
-            y=1.02
+        plt.xlabel("Tempo")
+
+        plt.ylabel("Frequency")
+
+        plt.title("Tempo Distribution")
+
+        self.save_plot(
+            "08_tempo.png"
         )
 
-        pair.savefig(
-            "outputs/images/10_pairplot.png",
-            dpi=300
+    # ====================================================
+    # Valence Histogram
+    # ====================================================
+
+    def valence(self):
+
+        plt.figure(figsize=(8,5))
+
+        plt.hist(
+            self.df["valence"],
+            bins=30
         )
 
-        plt.show()
+        plt.xlabel("Valence")
 
-        print("10_pairplot.png Saved Successfully")
+        plt.ylabel("Frequency")
 
-    # =====================================================
-    # Run All Part 1 Visualizations
-    # =====================================================
+        plt.title("Valence Distribution")
 
-    def run_part1(self):
+        self.save_plot(
+            "09_valence.png"
+        )
 
-        self.dataset_overview()
+    # ====================================================
+    # Run Basic Visualizations
+    # ====================================================
+
+    def run_basic_visualizations(self):
+
+        self.dataset_information()
+
+        self.missing_values()
 
         self.playlist_genre_distribution()
 
         self.playlist_subgenre_distribution()
 
-        self.popularity_distribution()
+        self.track_popularity()
 
-        self.danceability_distribution()
+        self.danceability()
 
-        self.energy_distribution()
+        self.energy()
 
-        self.tempo_distribution()
+        self.loudness()
 
-        self.loudness_distribution()
+        self.tempo()
 
-        self.boxplot_visualization()
+        self.valence()
 
-        self.pair_plot()
+        print("\nBasic Visualizations Completed.")
 # =====================================================
 # Correlation Heatmap
 # =====================================================
 
 def correlation_heatmap(self):
 
-    numerical_df = self.df.select_dtypes(include="number")
+    numeric_df = self.df.select_dtypes(include=np.number)
 
     plt.figure(figsize=(14,10))
 
     sns.heatmap(
-        numerical_df.corr(),
+
+        numeric_df.corr(),
+
+        annot=True,
+
         cmap="coolwarm",
-        annot=False,
+
+        fmt=".2f",
+
         linewidths=0.5
+
     )
 
     plt.title("Correlation Heatmap")
 
-    self.save_plot("11_correlation_heatmap.png")
+    self.save_plot(
+        "10_correlation_heatmap.png"
+    )
+
+
+# =====================================================
+# Boxplots
+# =====================================================
+
+def boxplots(self):
+
+    numeric_df = self.df.select_dtypes(include=np.number)
+
+    plt.figure(figsize=(16,8))
+
+    sns.boxplot(
+        data=numeric_df
+    )
+
+    plt.xticks(rotation=90)
+
+    plt.title("Feature Boxplots")
+
+    self.save_plot(
+        "11_boxplots.png"
+    )
+
+
+# =====================================================
+# Pairplot
+# =====================================================
+
+def pairplot(self):
+
+    features = [
+
+        "danceability",
+
+        "energy",
+
+        "valence",
+
+        "tempo"
+
+    ]
+
+    available = [
+
+        col
+
+        for col in features
+
+        if col in self.df.columns
+
+    ]
+
+    if len(available) < 2:
+
+        return
+
+    sns.pairplot(
+
+        self.df[available],
+
+        diag_kind="hist"
+
+    )
+
+    plt.savefig(
+
+        "outputs/images/12_pairplot.png",
+
+        dpi=300,
+
+        bbox_inches="tight"
+
+    )
+
+    plt.show()
+
+    print("Saved : outputs/images/12_pairplot.png")
+
+
+# =====================================================
+# Feature Distribution
+# =====================================================
+
+def feature_distribution(self):
+
+    numeric_columns = [
+
+        "danceability",
+
+        "energy",
+
+        "speechiness",
+
+        "acousticness",
+
+        "instrumentalness",
+
+        "liveness",
+
+        "valence"
+
+    ]
+
+    available = [
+
+        col
+
+        for col in numeric_columns
+
+        if col in self.df.columns
+
+    ]
+
+    for feature in available:
+
+        plt.figure(figsize=(8,5))
+
+        sns.histplot(
+
+            self.df[feature],
+
+            kde=True,
+
+            bins=30
+
+        )
+
+        plt.title(f"{feature} Distribution")
+
+        self.save_plot(
+
+            f"distribution_{feature}.png"
+
+        )
+
+
+# =====================================================
+# Violin Plots
+# =====================================================
+
+def violin_plots(self):
+
+    if "playlist_genre" not in self.df.columns:
+
+        return
+
+    features = [
+
+        "danceability",
+
+        "energy",
+
+        "valence"
+
+    ]
+
+    for feature in features:
+
+        if feature not in self.df.columns:
+
+            continue
+
+        plt.figure(figsize=(10,6))
+
+        sns.violinplot(
+
+            data=self.df,
+
+            x="playlist_genre",
+
+            y=feature
+
+        )
+
+        plt.xticks(rotation=45)
+
+        plt.title(f"{feature} by Playlist Genre")
+
+        self.save_plot(
+
+            f"violin_{feature}.png"
+
+        )
+
+
+# =====================================================
+# Scatter Plots
+# =====================================================
+
+def scatter_plots(self):
+
+    scatter_pairs = [
+
+        ("danceability", "energy"),
+
+        ("energy", "valence"),
+
+        ("tempo", "danceability"),
+
+        ("loudness", "energy")
+
+    ]
+
+    for x, y in scatter_pairs:
+
+        if x not in self.df.columns:
+
+            continue
+
+        if y not in self.df.columns:
+
+            continue
+
+        plt.figure(figsize=(8,6))
+
+        sns.scatterplot(
+
+            data=self.df,
+
+            x=x,
+
+            y=y,
+
+            alpha=0.6
+
+        )
+
+        plt.title(f"{x} vs {y}")
+
+        self.save_plot(
+
+            f"{x}_vs_{y}.png"
+
+        )
+
+
+# =====================================================
+# KDE Distribution
+# =====================================================
+
+def kde_plots(self):
+
+    features = [
+
+        "danceability",
+
+        "energy",
+
+        "valence",
+
+        "tempo"
+
+    ]
+
+    for feature in features:
+
+        if feature not in self.df.columns:
+
+            continue
+
+        plt.figure(figsize=(8,5))
+
+        sns.kdeplot(
+
+            self.df[feature],
+
+            fill=True
+
+        )
+
+        plt.title(f"{feature} KDE Distribution")
+
+        self.save_plot(
+
+            f"kde_{feature}.png"
+
+        )
+
+
+# =====================================================
+# Numerical Summary
+# =====================================================
+
+def numerical_summary(self):
+
+    numeric = self.df.select_dtypes(include=np.number)
+
+    print("=" * 60)
+
+    print("NUMERICAL SUMMARY")
+
+    print("=" * 60)
+
+    print(
+
+        numeric.describe()
+
+    )
+
+
+# =====================================================
+# Run Statistical Visualizations
+# =====================================================
+
+def run_statistical_visualizations(self):
+
+    self.correlation_heatmap()
+
+    self.boxplots()
+
+    self.pairplot()
+
+    self.feature_distribution()
+
+    self.violin_plots()
+
+    self.scatter_plots()
+
+    self.kde_plots()
+
+    self.numerical_summary()
+
+    print("\nStatistical Visualizations Completed.")
+# =====================================================
+# Required Imports
+# =====================================================
+
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.metrics import silhouette_samples
 
 
 # =====================================================
 # Elbow Method
 # =====================================================
 
-def elbow_method(self, X_scaled):
-
-    from sklearn.cluster import KMeans
+def elbow_method(
+        self,
+        X,
+        max_clusters=10):
 
     inertia = []
 
-    K = range(1, 11)
-
-    for k in K:
+    for k in range(1, max_clusters + 1):
 
         model = KMeans(
             n_clusters=k,
@@ -387,261 +705,734 @@ def elbow_method(self, X_scaled):
             n_init=20
         )
 
-        model.fit(X_scaled)
+        model.fit(X)
 
         inertia.append(model.inertia_)
 
     plt.figure(figsize=(8,5))
 
     plt.plot(
-        K,
+
+        range(1, max_clusters + 1),
+
         inertia,
+
         marker="o",
+
         linewidth=2
+
     )
 
-    plt.xlabel("Number of Clusters (K)")
+    plt.xlabel("Number of Clusters")
 
     plt.ylabel("Inertia")
 
     plt.title("Elbow Method")
 
-    self.save_plot("12_elbow_method.png")
+    self.save_plot(
+        "13_elbow_method.png"
+    )
 
 
 # =====================================================
-# Cluster Distribution
+# KMeans Cluster Distribution
 # =====================================================
 
 def cluster_distribution(self):
 
     if "Cluster" not in self.df.columns:
-
-        print("Cluster column not found.")
-
         return
 
     plt.figure(figsize=(8,5))
 
     sns.countplot(
+
         data=self.df,
+
         x="Cluster",
-        palette="viridis"
+
+        order=sorted(
+            self.df["Cluster"].unique()
+        )
+
     )
 
     plt.title("Cluster Distribution")
 
-    plt.xlabel("Cluster")
-
-    plt.ylabel("Number of Songs")
-
-    self.save_plot("13_cluster_distribution.png")
+    self.save_plot(
+        "14_cluster_distribution.png"
+    )
 
 
 # =====================================================
-# PCA Visualization
+# PCA Cluster Visualization
 # =====================================================
 
-def pca_visualization(self, X_scaled):
-
-    from sklearn.decomposition import PCA
+def pca_clusters(
+        self,
+        X):
 
     if "Cluster" not in self.df.columns:
-
-        print("Cluster column not found.")
-
         return
 
-    pca = PCA(n_components=2)
+    pca = PCA(
+        n_components=2
+    )
 
-    components = pca.fit_transform(X_scaled)
+    reduced = pca.fit_transform(X)
 
     plt.figure(figsize=(10,8))
 
     plt.scatter(
-        components[:,0],
-        components[:,1],
+
+        reduced[:,0],
+
+        reduced[:,1],
+
         c=self.df["Cluster"],
+
         cmap="viridis",
+
         s=20
+
     )
 
     plt.xlabel("Principal Component 1")
 
     plt.ylabel("Principal Component 2")
 
-    plt.title("PCA Cluster Visualization")
+    plt.title("K-Means PCA Clusters")
 
     plt.colorbar(label="Cluster")
 
-    self.save_plot("14_pca_clusters.png")
+    self.save_plot(
+        "15_pca_clusters.png"
+    )
 
 
 # =====================================================
-# Cluster by Playlist Genre
+# Genre vs Cluster
 # =====================================================
 
-def cluster_by_genre(self):
+def genre_vs_cluster(self):
+
+    if "playlist_genre" not in self.df.columns:
+        return
 
     if "Cluster" not in self.df.columns:
-
         return
 
     plt.figure(figsize=(12,6))
 
     sns.countplot(
+
         data=self.df,
+
         x="playlist_genre",
+
         hue="Cluster"
+
     )
 
-    plt.xticks(rotation=30)
+    plt.xticks(rotation=45)
 
-    plt.title("Clusters by Playlist Genre")
+    plt.title("Genre vs Cluster")
 
-    self.save_plot("15_cluster_by_genre.png")
+    self.save_plot(
+        "16_genre_vs_cluster.png"
+    )
 
 
 # =====================================================
-# Cluster by Playlist Name
+# Playlist vs Cluster
 # =====================================================
 
-def cluster_by_playlist(self):
+def playlist_vs_cluster(self):
 
-    if "Cluster" not in self.df.columns:
-
+    if "playlist_name" not in self.df.columns:
         return
 
-    top_playlist = self.df["playlist_name"].value_counts().head(15).index
+    if "Cluster" not in self.df.columns:
+        return
 
-    playlist_df = self.df[
-        self.df["playlist_name"].isin(top_playlist)
+    top_playlist = self.df[
+        "playlist_name"
+    ].value_counts().head(15).index
+
+    subset = self.df[
+        self.df["playlist_name"].isin(
+            top_playlist
+        )
     ]
 
-    plt.figure(figsize=(14,8))
+    plt.figure(figsize=(15,6))
 
     sns.countplot(
-        data=playlist_df,
-        y="playlist_name",
+
+        data=subset,
+
+        x="playlist_name",
+
         hue="Cluster"
+
     )
 
-    plt.title("Clusters by Playlist")
+    plt.xticks(rotation=90)
 
-    self.save_plot("16_cluster_by_playlist.png")
+    plt.title("Playlist vs Cluster")
+
+    self.save_plot(
+        "17_playlist_vs_cluster.png"
+    )
 
 
 # =====================================================
-# Deep Learning Cluster Distribution
+# Cluster Centers
+# =====================================================
+
+def cluster_centers(
+        self,
+        X):
+
+    if "Cluster" not in self.df.columns:
+        return
+
+    model = KMeans(
+
+        n_clusters=len(
+            self.df["Cluster"].unique()
+        ),
+
+        random_state=42,
+
+        n_init=20
+
+    )
+
+    model.fit(X)
+
+    centers = pd.DataFrame(
+        model.cluster_centers_
+    )
+
+    plt.figure(figsize=(14,6))
+
+    sns.heatmap(
+
+        centers,
+
+        cmap="coolwarm",
+
+        annot=True,
+
+        fmt=".2f"
+
+    )
+
+    plt.title("Cluster Centers")
+
+    self.save_plot(
+        "18_cluster_centers.png"
+    )
+
+
+# =====================================================
+# Silhouette Analysis
+# =====================================================
+
+def silhouette_analysis(
+        self,
+        X):
+
+    if "Cluster" not in self.df.columns:
+        return
+
+    values = silhouette_samples(
+
+        X,
+
+        self.df["Cluster"]
+
+    )
+
+    plt.figure(figsize=(8,5))
+
+    plt.hist(
+
+        values,
+
+        bins=25
+
+    )
+
+    plt.xlabel("Silhouette Score")
+
+    plt.ylabel("Frequency")
+
+    plt.title("Silhouette Distribution")
+
+    self.save_plot(
+        "19_silhouette_analysis.png"
+    )
+
+
+# =====================================================
+# Cluster Popularity
+# =====================================================
+
+def cluster_popularity(self):
+
+    if "Cluster" not in self.df.columns:
+        return
+
+    if "track_popularity" not in self.df.columns:
+        return
+
+    plt.figure(figsize=(8,5))
+
+    sns.boxplot(
+
+        data=self.df,
+
+        x="Cluster",
+
+        y="track_popularity"
+
+    )
+
+    plt.title("Track Popularity by Cluster")
+
+    self.save_plot(
+        "20_cluster_popularity.png"
+    )
+
+
+# =====================================================
+# Cluster Summary
+# =====================================================
+
+def cluster_summary(self):
+
+    if "Cluster" not in self.df.columns:
+        return
+
+    summary = self.df.groupby(
+        "Cluster"
+    ).mean(
+        numeric_only=True
+    )
+
+    print("=" * 60)
+
+    print("CLUSTER SUMMARY")
+
+    print("=" * 60)
+
+    print(summary)
+
+    summary.to_csv(
+        "outputs/ml_cluster_summary.csv"
+    )
+
+
+# =====================================================
+# Run Machine Learning Visualizations
+# =====================================================
+
+def run_ml_visualizations(
+        self,
+        X):
+
+    self.elbow_method(X)
+
+    self.cluster_distribution()
+
+    self.pca_clusters(X)
+
+    self.genre_vs_cluster()
+
+    self.playlist_vs_cluster()
+
+    self.cluster_centers(X)
+
+    self.silhouette_analysis(X)
+
+    self.cluster_popularity()
+
+    self.cluster_summary()
+
+    print("\nMachine Learning Visualizations Completed.")
+# =====================================================
+# Deep Learning Training Loss
+# =====================================================
+
+def training_loss(self, history):
+
+    if history is None:
+        return
+
+    plt.figure(figsize=(8,5))
+
+    plt.plot(
+        history.history["loss"],
+        label="Training Loss",
+        linewidth=2
+    )
+
+    if "val_loss" in history.history:
+
+        plt.plot(
+            history.history["val_loss"],
+            label="Validation Loss",
+            linewidth=2
+        )
+
+    plt.xlabel("Epoch")
+
+    plt.ylabel("Loss")
+
+    plt.title("Deep Learning Training Loss")
+
+    plt.legend()
+
+    self.save_plot(
+        "21_dl_training_loss.png"
+    )
+
+
+# =====================================================
+# Latent Space PCA
+# =====================================================
+
+def latent_pca(
+        self,
+        encoded_features,
+        labels):
+
+    pca = PCA(
+        n_components=2
+    )
+
+    reduced = pca.fit_transform(
+        encoded_features
+    )
+
+    plt.figure(figsize=(10,8))
+
+    plt.scatter(
+
+        reduced[:,0],
+
+        reduced[:,1],
+
+        c=labels,
+
+        cmap="plasma",
+
+        s=20
+
+    )
+
+    plt.xlabel("Principal Component 1")
+
+    plt.ylabel("Principal Component 2")
+
+    plt.title("Latent Feature Space")
+
+    plt.colorbar(label="Cluster")
+
+    self.save_plot(
+        "22_latent_pca.png"
+    )
+
+
+# =====================================================
+# Reconstruction Error
+# =====================================================
+
+def reconstruction_error(
+        self,
+        reconstruction_errors):
+
+    plt.figure(figsize=(8,5))
+
+    plt.hist(
+
+        reconstruction_errors,
+
+        bins=35
+
+    )
+
+    plt.xlabel("Reconstruction Error")
+
+    plt.ylabel("Frequency")
+
+    plt.title("Reconstruction Error Distribution")
+
+    self.save_plot(
+        "23_reconstruction_error.png"
+    )
+
+
+# =====================================================
+# Deep Cluster Distribution
 # =====================================================
 
 def deep_cluster_distribution(self):
 
     if "DL_Cluster" not in self.df.columns:
-
         return
 
     plt.figure(figsize=(8,5))
 
     sns.countplot(
+
         data=self.df,
+
         x="DL_Cluster",
-        palette="magma"
+
+        order=sorted(
+            self.df["DL_Cluster"].unique()
+        )
+
     )
 
     plt.title("Deep Learning Cluster Distribution")
 
-    self.save_plot("19_dl_cluster_distribution.png")
+    self.save_plot(
+        "24_dl_cluster_distribution.png"
+    )
 
 
 # =====================================================
-# Deep Learning Cluster by Genre
+# Genre vs Deep Cluster
 # =====================================================
 
-def deep_cluster_by_genre(self):
+def deep_cluster_vs_genre(self):
 
     if "DL_Cluster" not in self.df.columns:
+        return
 
+    if "playlist_genre" not in self.df.columns:
         return
 
     plt.figure(figsize=(12,6))
 
     sns.countplot(
+
         data=self.df,
+
         x="playlist_genre",
+
         hue="DL_Cluster"
+
     )
 
-    plt.xticks(rotation=30)
+    plt.xticks(rotation=45)
 
-    plt.title("Deep Learning Cluster by Genre")
+    plt.title("Genre vs Deep Cluster")
 
-    self.save_plot("20_dl_cluster_by_genre.png")
+    self.save_plot(
+        "25_dl_genre_vs_cluster.png"
+    )
 
 
 # =====================================================
-# Deep Learning Cluster by Playlist
+# Playlist vs Deep Cluster
 # =====================================================
 
-def deep_cluster_by_playlist(self):
+def deep_cluster_vs_playlist(self):
 
     if "DL_Cluster" not in self.df.columns:
-
         return
 
-    top_playlist = self.df["playlist_name"].value_counts().head(15).index
+    if "playlist_name" not in self.df.columns:
+        return
 
-    playlist_df = self.df[
-        self.df["playlist_name"].isin(top_playlist)
+    top = self.df[
+        "playlist_name"
+    ].value_counts().head(15).index
+
+    subset = self.df[
+        self.df["playlist_name"].isin(top)
     ]
 
-    plt.figure(figsize=(14,8))
+    plt.figure(figsize=(15,6))
 
     sns.countplot(
-        data=playlist_df,
-        y="playlist_name",
+
+        data=subset,
+
+        x="playlist_name",
+
         hue="DL_Cluster"
+
     )
 
-    plt.title("Deep Learning Cluster by Playlist")
+    plt.xticks(rotation=90)
 
-    self.save_plot("21_dl_cluster_by_playlist.png")
+    plt.title("Playlist vs Deep Cluster")
+
+    self.save_plot(
+        "26_dl_playlist_vs_cluster.png"
+    )
 
 
 # =====================================================
-# Run All Part 2
+# Deep Cluster Summary
 # =====================================================
 
-def run_part2(self, X_scaled):
+def deep_cluster_summary(self):
 
-    self.correlation_heatmap()
+    if "DL_Cluster" not in self.df.columns:
+        return
 
-    self.elbow_method(X_scaled)
+    summary = self.df.groupby(
 
-    self.cluster_distribution()
+        "DL_Cluster"
 
-    self.pca_visualization(X_scaled)
+    ).mean(
 
-    self.cluster_by_genre()
+        numeric_only=True
 
-    self.cluster_by_playlist()
+    )
+
+    print("=" * 60)
+
+    print("DEEP LEARNING CLUSTER SUMMARY")
+
+    print("=" * 60)
+
+    print(summary)
+
+    summary.to_csv(
+
+        "outputs/deep_learning_cluster_summary.csv"
+
+    )
+
+
+# =====================================================
+# Run Deep Learning Visualizations
+# =====================================================
+
+def run_dl_visualizations(
+        self,
+        history,
+        encoded_features,
+        labels,
+        reconstruction_errors):
+
+    self.training_loss(history)
+
+    self.latent_pca(
+        encoded_features,
+        labels
+    )
+
+    self.reconstruction_error(
+        reconstruction_errors
+    )
 
     self.deep_cluster_distribution()
 
-    self.deep_cluster_by_genre()
+    self.deep_cluster_vs_genre()
 
-    self.deep_cluster_by_playlist()
+    self.deep_cluster_vs_playlist()
 
-# =========================================================
-# Standalone Execution
-# =========================================================
+    self.deep_cluster_summary()
 
+    print("\nDeep Learning Visualizations Completed.")
+
+
+# =====================================================
+# Run All Visualizations
+# =====================================================
+
+def run_all_visualizations(
+        self,
+        X_scaled=None,
+        history=None,
+        encoded_features=None,
+        labels=None,
+        reconstruction_errors=None):
+
+    print("=" * 60)
+    print("RUNNING ALL VISUALIZATIONS")
+    print("=" * 60)
+
+    # -------------------------
+    # Basic EDA
+    # -------------------------
+
+    self.run_basic_visualizations()
+
+    # -------------------------
+    # Statistical Analysis
+    # -------------------------
+
+    self.run_statistical_visualizations()
+
+    # -------------------------
+    # Machine Learning
+    # -------------------------
+
+    if X_scaled is not None:
+
+        self.run_ml_visualizations(
+            X_scaled
+        )
+
+    # -------------------------
+    # Deep Learning
+    # -------------------------
+
+    if (
+
+        history is not None
+
+        and
+
+        encoded_features is not None
+
+        and
+
+        labels is not None
+
+        and
+
+        reconstruction_errors is not None
+
+    ):
+
+        self.run_dl_visualizations(
+
+            history,
+
+            encoded_features,
+
+            labels,
+
+            reconstruction_errors
+
+        )
+
+    print("\nAll Visualizations Generated Successfully.")
 if __name__ == "__main__":
 
-    df = pd.read_csv("data/raw/spotify_songs.csv")
+    from data_preprocessing import DataPreprocessor
 
-    visualizer = DataVisualization(df)
+    DATASET = "data/raw/spotify_songs.csv"
 
-    visualizer.run_part1()
-    visualization.run_part2()
-  
+    processor = DataPreprocessor(DATASET)
+
+    dataframe, X_scaled = processor.preprocessing_pipeline()
+
+    visualizer = DataVisualization(dataframe)
+
+    visualizer.run_basic_visualizations()
+
+    visualizer.run_statistical_visualizations()
+
+    print("\nVisualization Module Executed Successfully.")
